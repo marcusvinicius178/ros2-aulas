@@ -89,40 +89,46 @@ source /opt/ros/jazzy/setup.bash
 #
 # 2) RMW (DDS) implementações
 # - FastDDS e CycloneDDS para você poder alternar middleware se necessário
+```bash
 sudo apt install -y \
   build-essential \
   python3-colcon-common-extensions \
   python3-rosdep \
   ros-humble-rmw-fastrtps-cpp \
   ros-humble-rmw-cyclonedds-cpp
-
+```
 # Visualização e depuração
 # - RViz2: visualização
 # - tf2-tools: ferramentas de inspeção de TF (view_frames, tf2_echo, etc)
+bash```
 sudo apt install -y \
   ros-humble-rviz2 \
   ros-humble-tf2-tools
 
 # Turtlesim (aquecimento)
 # - Pacote clássico para testar tópicos, serviços e nós rapidamente
+```bash
 sudo apt install -y \
   ros-humble-turtlesim
+```
 
 # Teleop (controle por teclado)
 # - Envia geometry_msgs/Twist para controlar robôs/simulação
+```bash
 sudo apt install -y \
   ros-humble-teleop-twist-keyboard
-
+```
 # TurtleBot3 + Gazebo Classic (mais simples para Humble)
 # - Instala pacotes do TurtleBot3 e simulação pronta
 # - Gazebo Classic via gazebo_ros_pkgs (ainda disponível no Humble)
+```bash
 sudo apt install -y \
   ros-humble-turtlebot3 \
   ros-humble-turtlebot3-msgs \
   ros-humble-turtlebot3-simulations \
   ros-humble-gazebo-ros-pkgs \
   ros-humble-gazebo-ros
-
+```
 
 # ============================================================
 # Ubuntu 24.04 (Noble) + ROS 2 Jazzy
@@ -130,10 +136,12 @@ sudo apt install -y \
 # ============================================================
 
 # 0) (Pré) Garanta que seu ROS 2 Jazzy já está instalado e carregado
+```bash
 source /opt/ros/jazzy/setup.bash
-
+```
 # 1) Instalar Gazebo Sim (Harmonic) via repositório OSRF (Gazebo Sim)
 # (comandos do Quick Start do TurtleBot3 para Ubuntu 24.04 + Jazzy)
+```bash
 sudo apt-get update
 sudo apt-get install -y curl lsb-release gnupg
 sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
@@ -142,40 +150,48 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-
 sudo apt-get update
 sudo apt-get install -y gz-harmonic
 # Fonte: Quick Start (Jazzy) :contentReference[oaicite:2]{index=2}
-
+```
 # 2) Criar workspace do TurtleBot3 e clonar os pacotes principais (branch jazzy)
+```bash
 mkdir -p ~/turtlebot3_ws/src
 cd ~/turtlebot3_ws/src
 
 git clone -b jazzy https://github.com/ROBOTIS-GIT/DynamixelSDK.git
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3.git
+```
 # Fonte: Quick Start (Jazzy) :contentReference[oaicite:3]{index=3}
 
 # 3) Clonar as simulações (branch jazzy) e buildar tudo
+```bash
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+```
 # Fonte: Simulation (Jazzy) :contentReference[oaicite:4]{index=4}
-
+```bash
 cd ~/turtlebot3_ws
-
+```
 # 4) (Recomendado) instalar dependências do workspace via rosdep
 # (se você já usa rosdep no PC, pode pular o "init")
+```bash
 sudo rosdep init 2>/dev/null || true
 rosdep update
 rosdep install --from-paths src -i -y
-
+```
 # 5) Build
+```bash
 sudo apt install -y python3-colcon-common-extensions
 colcon build --symlink-install
-
+```
 # 6) Source do workspace
+```bash
 source ~/turtlebot3_ws/install/setup.bash
-
+```
 # 7) Rodar a simulação (3 mundos disponíveis)
 # Empty World:
+```bash
 export TURTLEBOT3_MODEL=burger
 ros2 launch turtlebot3_gazebo empty_world.launch.py
-
+```
 # (alternativas)
 # export TURTLEBOT3_MODEL=waffle
 # ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
