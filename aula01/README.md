@@ -100,11 +100,11 @@ sudo apt install -y \
 # Visualização e depuração
 # - RViz2: visualização
 # - tf2-tools: ferramentas de inspeção de TF (view_frames, tf2_echo, etc)
-bash```
+```bash
 sudo apt install -y \
   ros-humble-rviz2 \
   ros-humble-tf2-tools
-
+```
 # Turtlesim (aquecimento)
 # - Pacote clássico para testar tópicos, serviços e nós rapidamente
 ```bash
