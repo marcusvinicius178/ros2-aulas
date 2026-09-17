@@ -679,3 +679,87 @@ ros2 launch my_lab01 demo.launch.py
 ```
 
 Os dois nós deverão ser inicializados pelo mesmo Launch File.
+
+---
+
+# Prática 2 — Inspeção de Topics
+
+Nesta prática vamos utilizar a CLI do ROS 2 para inspecionar tópicos, mensagens, frequência e conexões entre Publishers e Subscribers.
+
+## 1. Executar a aplicação
+
+Primeiro, carregue o workspace:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute o Launch File:
+
+```bash
+ros2 launch my_lab01 demo.launch.py
+```
+
+---
+
+## 2. Listar os tópicos disponíveis
+
+Em outro terminal:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Liste os tópicos:
+
+```bash
+ros2 topic list
+```
+
+---
+
+## 3. Verificar o tipo de mensagem de um tópico
+
+```bash
+ros2 topic type /topic
+```
+
+---
+
+## 4. Visualizar as mensagens publicadas
+
+```bash
+ros2 topic echo /topic
+```
+
+---
+
+## 5. Publicar manualmente em um tópico
+
+```bash
+ros2 topic pub /topic std_msgs/msg/String "data: 'teste'"
+```
+
+---
+
+## 6. Verificar a frequência de publicação
+
+```bash
+ros2 topic hz /topic
+```
+
+---
+
+## 7. Ver informações sobre Publishers e Subscribers
+
+```bash
+ros2 topic info /topic
+```
+
+---
+
+## 8. Ver informações detalhadas do tópico
+
+```bash
+ros2 topic info /topic --verbose
+```
