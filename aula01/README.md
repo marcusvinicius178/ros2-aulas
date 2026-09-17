@@ -1233,3 +1233,105 @@ O Gazebo simula o robô e o ambiente.
 O ROS 2 transporta as informações através de tópicos, serviços e transformadas.
 
 O RViz visualiza essas informações.
+
+---
+
+# Prática 7 — Exercício com o Prius
+
+Nesta prática vamos executar uma demonstração com o Prius em ambiente simulado e utilizar ferramentas do ROS 2 para inspecionar os dados publicados.
+
+## 1. Clonar o repositório
+
+Entre no diretório desejado:
+
+```bash
+cd ~
+```
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/mattborghi/osrf_car_demo.git
+```
+
+Entre na pasta:
+
+```bash
+cd ~/osrf_car_demo
+```
+
+---
+
+## 2. Compilar o demo
+
+Execute:
+
+```bash
+./build_demo.bash
+```
+
+---
+
+## 3. Executar com suporte NVIDIA
+
+Execute:
+
+```bash
+./run_demo.bash --nvidia
+```
+
+Mantenha esse terminal aberto.
+
+---
+
+## 4. Entrar no container
+
+Abra um novo terminal.
+
+Liste os containers em execução:
+
+```bash
+docker ps
+```
+
+Identifique o nome do container.
+
+Entre nele com:
+
+```bash
+docker exec -it NOME_DO_CONTAINER bash
+```
+
+---
+
+## 5. Listar os tópicos ROS 2
+
+Dentro do container:
+
+```bash
+ros2 topic list
+```
+
+---
+
+## 6. Abrir o RQT Graph
+
+Ainda dentro do ambiente ROS 2:
+
+```bash
+ros2 run rqt_graph rqt_graph
+```
+
+Observe os nós e tópicos criados pela simulação.
+
+---
+
+## 7. Inspecionar posição e velocidade das juntas
+
+Execute:
+
+```bash
+ros2 topic echo /prius/joint_states
+```
+
+Observe os valores publicados pelo veículo durante a simulação.
