@@ -1558,4 +1558,39 @@ Nesta etapa o modelo deve apresentar:
 - braço esquerdo;
 - braço direito;
 - câmera;
-- junta fixa conectando a câmera ao robô.
+- junta fixa conectando a câmera ao robô
+
+---
+
+# URDF — Step 5: conversão para Xacro
+
+Nesta etapa o modelo URDF é convertido para Xacro.
+
+O Xacro permite utilizar propriedades e macros, reduzindo repetição e facilitando a manutenção do modelo do robô.
+
+Arquivos utilizados:
+
+- [`urdf/simple_robot_step5.urdf.xacro`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step5.urdf.xacro)
+- [`launch/display_step5.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step5.launch.py)
+- [`rviz/step5.rviz`](exemplos/meu_robo_urdf_aula/rviz/step5.rviz)
+
+Compile o pacote:
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue o workspace:
+
+```bash
+source install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step5.launch.py
+```
+
+Nesta etapa o modelo passa a ser descrito utilizando Xacro, permitindo uma estrutura mais modular e reutilizável.
