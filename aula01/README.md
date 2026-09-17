@@ -1015,3 +1015,90 @@ O nó `read_navigate` deverá:
 - processar as distâncias medidas;
 - publicar comandos de velocidade para o robô;
 - permitir que o TurtleBot3 reaja aos obstáculos do ambiente.
+
+---
+
+# Prática 5 — Visualizando a comunicação com RQT Graph
+
+Nesta prática vamos utilizar o `rqt_graph` para visualizar graficamente os nós e tópicos ativos no sistema ROS 2.
+
+## 1. Executar a aplicação
+
+Primeiro, execute novamente a aplicação criada anteriormente:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+```bash
+ros2 launch my_lab01 demo.launch.py
+```
+
+Mantenha esse terminal aberto.
+
+---
+
+## 2. Abrir o RQT Graph
+
+Abra um novo terminal e carregue o ambiente ROS 2:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 run rqt_graph rqt_graph
+```
+
+---
+
+## 3. O que observar
+
+No `rqt_graph`, identifique:
+
+- o nó Publisher;
+- o nó Subscriber;
+- o tópico que conecta os dois nós;
+- o sentido do fluxo de mensagens.
+
+A representação esperada é semelhante a:
+
+```text
+Publisher Node
+      |
+      v
+    /topic
+      |
+      v
+Subscriber Node
+```
+
+---
+
+## 4. Testar com o TurtleBot3
+
+Também é possível utilizar o `rqt_graph` enquanto o TurtleBot3 estiver executando.
+
+Em um terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+```bash
+export TURTLEBOT3_MODEL=burger
+```
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+Em outro terminal:
+
+```bash
+ros2 run rqt_graph rqt_graph
+```
+
+Observe os nós e tópicos criados pelo simulador e pelo robô.
