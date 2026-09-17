@@ -1262,7 +1262,37 @@ cd ~/osrf_car_demo
 
 ---
 
-## 2. Compilar o demo
+## 2. Atualizar o arquivo `run_demo.bash`
+
+Antes de compilar o demo, substitua o conteúdo do arquivo:
+
+```text
+~/osrf_car_demo/run_demo.bash
+```
+
+pelo arquivo utilizado nesta aula:
+
+[`prius/run_demo.bash`](prius/run_demo.bash)
+
+Abra o arquivo original:
+
+```bash
+gedit ~/osrf_car_demo/run_demo.bash
+```
+
+Apague todo o conteúdo atual e copie o conteúdo de:
+
+[`prius/run_demo.bash`](prius/run_demo.bash)
+
+Garanta também que o arquivo possui permissão de execução:
+
+```bash
+chmod +x ~/osrf_car_demo/run_demo.bash
+```
+
+---
+
+## 3. Compilar o demo
 
 Execute:
 
@@ -1272,7 +1302,7 @@ Execute:
 
 ---
 
-## 3. Executar com suporte NVIDIA
+## 4. Executar com suporte NVIDIA
 
 Execute:
 
@@ -1284,7 +1314,7 @@ Mantenha esse terminal aberto.
 
 ---
 
-## 4. Entrar no container
+## 5. Entrar no container
 
 Abra um novo terminal.
 
@@ -1304,7 +1334,7 @@ docker exec -it NOME_DO_CONTAINER bash
 
 ---
 
-## 5. Listar os tópicos ROS 2
+## 6. Listar os tópicos ROS 2
 
 Dentro do container:
 
@@ -1314,7 +1344,7 @@ ros2 topic list
 
 ---
 
-## 6. Abrir o RQT Graph
+## 7. Abrir o RQT Graph
 
 Ainda dentro do ambiente ROS 2:
 
@@ -1326,7 +1356,7 @@ Observe os nós e tópicos criados pela simulação.
 
 ---
 
-## 7. Inspecionar posição e velocidade das juntas
+## 8. Inspecionar posição e velocidade das juntas
 
 Execute:
 
