@@ -866,3 +866,152 @@ Terminal C
 ```
 
 Ao movimentar o robô pelo teclado, o TurtleBot3 deverá se mover no simulador enquanto o tópico `/scan` continua publicando os dados do LiDAR.
+
+---
+
+# Prática 4 — Leitura do LiDAR e navegação
+
+Nesta prática vamos criar um nó ROS 2 que recebe os dados do LiDAR através do tópico `/scan` e publica comandos de velocidade para o robô.
+
+## 1. Criar o arquivo `read_navigate.py`
+
+Entre no diretório Python do pacote:
+
+```bash
+cd ~/ros2_ws/src/my_lab01/my_lab01
+```
+
+Crie o arquivo:
+
+```bash
+gedit read_navigate.py
+```
+
+O código utilizado na aula está disponível em:
+
+[`scripts/read_navigate.py`](scripts/read_navigate.py)
+
+Copie o conteúdo desse arquivo para:
+
+```text
+~/ros2_ws/src/my_lab01/my_lab01/read_navigate.py
+```
+
+---
+
+## 2. Dar permissão de execução
+
+```bash
+chmod +x ~/ros2_ws/src/my_lab01/my_lab01/read_navigate.py
+```
+
+---
+
+## 3. Atualizar o `setup.py`
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/my_lab01/setup.py
+```
+
+Utilize como referência:
+
+[`scripts/setup.py`](scripts/setup.py)
+
+O arquivo deve conter o executável:
+
+```text
+read_navigate = my_lab01.read_navigate:main
+```
+
+---
+
+## 4. Recompilar o workspace
+
+Entre no workspace:
+
+```bash
+cd ~/ros2_ws
+```
+
+Compile novamente:
+
+```bash
+colcon build --symlink-install
+```
+
+Carregue o workspace:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+---
+
+## 5. Terminal A — Executar o TurtleBot3 no Gazebo
+
+Carregue o ROS 2:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Defina o modelo:
+
+```bash
+export TURTLEBOT3_MODEL=burger
+```
+
+Execute o simulador:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+---
+
+## 6. Terminal B — Executar o nó de navegação
+
+Abra um novo terminal.
+
+Carregue o workspace:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 run my_lab01 read_navigate
+```
+
+---
+
+## 7. Terminal C — Inspecionar o LiDAR
+
+Abra outro terminal.
+
+Visualize as mensagens do LiDAR:
+
+```bash
+ros2 topic echo /scan
+```
+
+Verifique a frequência:
+
+```bash
+ros2 topic hz /scan
+```
+
+---
+
+## 8. Resultado esperado
+
+O nó `read_navigate` deverá:
+
+- receber os dados do sensor LiDAR através do tópico `/scan`;
+- processar as distâncias medidas;
+- publicar comandos de velocidade para o robô;
+- permitir que o TurtleBot3 reaja aos obstáculos do ambiente.
