@@ -1102,3 +1102,134 @@ ros2 run rqt_graph rqt_graph
 ```
 
 Observe os nós e tópicos criados pelo simulador e pelo robô.
+
+---
+
+# Prática 6 — Bridge ROS–Gazebo e RViz
+
+Nesta prática vamos observar como os dados do robô simulado são disponibilizados no ROS 2 e visualizados no RViz.
+
+## 1. Executar o TurtleBot3 no Gazebo
+
+Abra um terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Defina o modelo:
+
+```bash
+export TURTLEBOT3_MODEL=burger
+```
+
+Execute o simulador:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+Mantenha este terminal aberto.
+
+---
+
+## 2. Verificar os tópicos disponíveis
+
+Abra um novo terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Liste os tópicos:
+
+```bash
+ros2 topic list
+```
+
+Procure tópicos relacionados a sensores, estados do robô e controle.
+
+---
+
+## 3. Inspecionar os estados das juntas
+
+Verifique se o tópico de estados das juntas está disponível:
+
+```bash
+ros2 topic echo /joint_states
+```
+
+Esse tópico contém informações sobre as juntas do robô, como posição e velocidade.
+
+---
+
+## 4. Executar a teleoperação
+
+Em outro terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true
+```
+
+Movimente o robô e observe como os estados e tópicos são atualizados.
+
+---
+
+## 5. Abrir o RViz
+
+Abra um novo terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Execute:
+
+```bash
+rviz2
+```
+
+---
+
+## 6. O que observar no RViz
+
+No RViz, observe que os dados publicados pelos nós ROS 2 podem ser visualizados graficamente.
+
+Alguns exemplos de informações que podem ser exibidas:
+
+- modelo do robô;
+- transformadas TF;
+- dados do LiDAR;
+- posição e orientação;
+- estados das juntas;
+- informações de sensores.
+
+---
+
+## 7. Relação entre Gazebo, ROS 2 e RViz
+
+O fluxo conceitual é:
+
+```text
+Gazebo
+  |
+  | dados da simulação
+  v
+Bridge / ROS 2
+  |
+  | tópicos e transformadas
+  v
+RViz
+```
+
+O Gazebo simula o robô e o ambiente.
+
+O ROS 2 transporta as informações através de tópicos, serviços e transformadas.
+
+O RViz visualiza essas informações.
