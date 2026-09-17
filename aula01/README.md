@@ -1594,3 +1594,62 @@ ros2 launch meu_robo_urdf_aula display_step5.launch.py
 ```
 
 Nesta etapa o modelo passa a ser descrito utilizando Xacro, permitindo uma estrutura mais modular e reutilizável.
+
+---
+
+# URDF — Step 6: levando a câmera para o Gazebo
+
+Nesta etapa o modelo Xacro passa a incluir a integração da câmera com o Gazebo.
+
+O `camera_link` continua representando o frame físico da câmera no modelo do robô.
+
+O Gazebo adiciona o sensor responsável pela geração da imagem, e a bridge converte os dados do simulador para mensagens ROS 2.
+
+O fluxo é:
+
+```text
+camera_link
+    ↓
+Gazebo Sensor
+    ↓
+ros_gz_bridge
+    ↓
+ROS 2
+    ↓
+RViz2
+```
+
+## Arquivos utilizados
+
+- [`urdf/simple_robot_step6.urdf.xacro`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step6.urdf.xacro)
+- [`launch/display_step6.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step6.launch.py)
+- [`rviz/step6.rviz`](exemplos/meu_robo_urdf_aula/rviz/step6.rviz)
+- [`world/empty_camera.world.sdf`](exemplos/meu_robo_urdf_aula/world/empty_camera.world.sdf)
+
+## Compilar o pacote
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue o workspace:
+
+```bash
+source install/setup.bash
+```
+
+## Executar
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step6.launch.py
+```
+
+## Resultado esperado
+
+Nesta etapa:
+
+- o robô deverá ser carregado no simulador;
+- a câmera deverá existir como sensor no Gazebo;
+- a imagem deverá ser disponibilizada através da bridge;
+- o RViz poderá visualizar o tópico correspondente à câmera.

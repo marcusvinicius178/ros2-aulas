@@ -1,0 +1,44 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+    - Class: rviz_default_plugins/Image
+      Name: Camera Image
+      Enabled: true
+      Image Topic:
+        Value: /camera/image_raw
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+  Global Options:
+    Fixed Frame: torso_link
+    Background Color: 48; 48; 48
+Views:
+  Current:
+    Class: rviz_default_plugins/Orbit
+    Distance: 3.0
+    Focal Point: {X: 0, Y: 0, Z: 0.2}
+    Pitch: 0.45
+    Yaw: 0.85
+    Target Frame: torso_link
+Window Geometry:
+  Height: 900
+  Width: 1600
