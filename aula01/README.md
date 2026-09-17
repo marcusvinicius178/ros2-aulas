@@ -1489,3 +1489,33 @@ Transient Local
 ```
 
 O marker deverá aparecer no RViz.
+
+---
+
+# URDF — Step 3: adicionando o braço direito
+
+Nesta etapa adicionamos o braço direito ao modelo.
+
+Arquivos utilizados:
+
+- [`urdf/simple_robot_step3.urdf`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step3.urdf)
+- [`launch/display_step3.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step3.launch.py)
+
+Compile o pacote:
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue o workspace:
+
+```bash
+source install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step3.launch.py
+```
