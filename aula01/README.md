@@ -1519,3 +1519,43 @@ Execute:
 ```bash
 ros2 launch meu_robo_urdf_aula display_step3.launch.py
 ```
+
+---
+
+# URDF — Step 4: adicionando uma câmera
+
+Nesta etapa adicionamos um novo link representando uma câmera sobre o robô.
+
+A câmera é conectada ao corpo através de uma junta fixa.
+
+Arquivos utilizados:
+
+- [`urdf/simple_robot_step4.urdf`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step4.urdf)
+- [`launch/display_step4.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step4.launch.py)
+
+Compile o pacote:
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue o workspace:
+
+```bash
+source install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step4.launch.py
+```
+
+Nesta etapa o modelo deve apresentar:
+
+- torso;
+- braço esquerdo;
+- braço direito;
+- câmera;
+- junta fixa conectando a câmera ao robô.
