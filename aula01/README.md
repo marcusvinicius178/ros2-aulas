@@ -1335,3 +1335,157 @@ ros2 topic echo /prius/joint_states
 ```
 
 Observe os valores publicados pelo veículo durante a simulação.
+
+---
+
+# Prática 8 — DDS e QoS na prática
+
+Nesta prática vamos observar o efeito de políticas de QoS incompatíveis entre Publisher e Subscriber.
+
+## 1. Clonar o repositório da demonstração de QoS
+
+Entre na pasta do demo do Prius:
+
+```bash
+cd ~/osrf_car_demo
+```
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/marcusvinicius178/qos_demo_visual.git
+```
+
+---
+
+## 2. Atualizar o Dockerfile
+
+Substitua o conteúdo do `Dockerfile` utilizado pelo demo pelo arquivo:
+
+[`qos/Dockerfile`](qos/Dockerfile)
+
+---
+
+## 3. Recompilar a imagem
+
+Entre novamente em:
+
+```bash
+cd ~/osrf_car_demo
+```
+
+Execute:
+
+```bash
+./build_demo.bash
+```
+
+Depois:
+
+```bash
+./run_demo.bash --nvidia
+```
+
+---
+
+## 4. Entrar no container
+
+Em outro terminal:
+
+```bash
+docker ps
+```
+
+Identifique o nome do container e entre nele:
+
+```bash
+docker exec -it NOME_DO_CONTAINER bash
+```
+
+---
+
+## 5. Teste com QoS incompatível
+
+Execute:
+
+```bash
+ros2 launch qos_demo_visual qos_prius_qos_demo.launch.py consumer_sub_rel:=reliable
+```
+
+Em outro terminal dentro do container:
+
+```bash
+ros2 topic echo /qos_demo/points_fixed
+```
+
+Com o Subscriber configurado como `reliable` e o Publisher utilizando `best_effort`, os dados não deverão fluir devido à incompatibilidade de QoS.
+
+---
+
+## 6. Teste com QoS compatível
+
+Finalize o launch anterior e execute:
+
+```bash
+ros2 launch qos_demo_visual qos_prius_qos_demo.launch.py consumer_sub_rel:=best_effort
+```
+
+Verifique novamente:
+
+```bash
+ros2 topic echo /qos_demo/points_fixed
+```
+
+Agora os dados deverão começar a ser publicados.
+
+---
+
+## 7. Visualização no RViz
+
+No RViz, adicione um display:
+
+```text
+PointCloud2
+```
+
+Configure o tópico:
+
+```text
+/qos_demo/points_fixed
+```
+
+Ajuste a política de Reliability para:
+
+```text
+Best Effort
+```
+
+---
+
+## 8. Teste de Durability
+
+Adicione um display:
+
+```text
+Marker
+```
+
+Configure o tópico:
+
+```text
+/qos_demo/latched_marker
+```
+
+Altere a política de Durability de:
+
+```text
+Volatile
+```
+
+para:
+
+```text
+Transient Local
+```
+
+O marker deverá aparecer no RViz.
