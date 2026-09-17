@@ -1,94 +1,202 @@
-# Aula 01
+# Aula 01 — Introdução ao ROS 2
 
 ## Objetivo
-- Instalar e configurar ferramentas de desenvolimento do ROS2
 
-## Pré-requisitos
-- Ubuntu 22.04 ou 24.04
+- Instalar e configurar as ferramentas de desenvolvimento do ROS 2.
+- Preparar o ambiente utilizado durante as aulas.
+- Criar um workspace ROS 2.
+- Criar o primeiro pacote ROS 2 em Python.
+- Implementar um Publisher e um Subscriber.
+- Executar nós individualmente e através de um Launch File.
+
+---
+
+# 1. Pré-requisitos
+
+- Ubuntu 22.04 ou Ubuntu 24.04
 - Terminal
 - Internet
 
+> **Ubuntu 22.04:** ROS 2 Humble  
+> **Ubuntu 24.04:** ROS 2 Jazzy
 
-### Configurar o sistema para texto e caracteres especiais (UTF-8)
+---
+
+# 2. Instalação e configuração do ROS 2
+
+## 2.1 Configurar UTF-8
+
+Verifique se o sistema está configurado para utilizar UTF-8:
+
 ```bash
-locale  # check for UTF-8
-
-sudo apt update && sudo apt install locales
-sudo locale-gen en_US en_US.UTF-8
-sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-export LANG=en_US.UTF-8
-
-locale  # verify settings
+locale
 ```
 
-### Configurar fontes: Adicionar o repositório apt do ROS2 no sistema
+Instale e configure os locales:
+
+```bash
+sudo apt update
+sudo apt install locales
+
+sudo locale-gen en_US en_US.UTF-8
+
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+
+export LANG=en_US.UTF-8
+```
+
+Verifique novamente:
+
+```bash
+locale
+```
+
+---
+
+## 2.2 Adicionar o repositório `universe`
+
+Instale as ferramentas necessárias:
+
 ```bash
 sudo apt install software-properties-common
+```
+
+Adicione o repositório:
+
+```bash
 sudo add-apt-repository universe
 ```
 
-### Instalando o pacote ros2-apt irá configurar os repositórios do ROS2 para o sistema. Atualizações das configurações do repositório irão ocorrer automaticamente quando novas versões deste pacote são liberadas para os repositórios do ROS2.
+---
+
+## 2.3 Configurar o repositório de pacotes do ROS 2
+
+Instale o `curl`:
+
 ```bash
-sudo apt update && sudo apt install curl -y
+sudo apt update
+sudo apt install curl -y
+```
+
+Obtenha automaticamente a versão atual do pacote `ros2-apt-source`:
+
+```bash
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
+```
+
+Baixe o pacote:
+
+```bash
 curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+```
+
+Instale:
+
+```bash
 sudo dpkg -i /tmp/ros2-apt-source.deb
 ```
 
-### Instalação dos pacotes ROS2
-### Atualize os caches do repositório apt configurando os repositórios
+---
+
+## 2.4 Atualizar o sistema
+
+Atualize o cache dos repositórios:
+
 ```bash
 sudo apt update
 ```
 
-### Os pacotes ROS2 são construídos frequentemente em sistemas Ubuntu atualizados. É semre recomendadado que você garanta que seu sistema esteja atualizado antes de instalar novos pacotes.
+Atualize os pacotes do sistema:
+
 ```bash
 sudo apt upgrade
 ```
 
-## Instalação do Desktop para Ubuntu 22.04 (Recomendada): ROS; Rviz; Demos, Tutoriais
-```bash 
+---
+
+# 3. Instalação do ROS 2
+
+Escolha **somente a opção correspondente à versão do seu Ubuntu**.
+
+## Ubuntu 22.04 — ROS 2 Humble
+
+Instalação Desktop recomendada, contendo ROS 2, RViz, demos e ferramentas:
+
+```bash
 sudo apt install ros-humble-desktop
 ```
 
-## Instalação do Desktop para Ubuntu 24.04 (Recomendada): ROS; Rviz; Demos, Tutoriais
-```bash 
+---
+
+## Ubuntu 24.04 — ROS 2 Jazzy
+
+Instalação Desktop recomendada:
+
+```bash
 sudo apt install ros-jazzy-desktop
 ```
 
-### Ferramentas de desenvolvimento: Compiladores e outras ferramentas para buildar os pacotes ROS
-```
+---
+
+## Ferramentas de desenvolvimento
+
+Instale as ferramentas utilizadas para desenvolvimento e compilação:
+
+```bash
 sudo apt install ros-dev-tools
 ```
 
-### Configurando o Ambiente (Ubuntu 22.04)
-### Configure o ambiente obtendo o seguinte arquivo
+---
+
+# 4. Configurando o ambiente ROS 2
+
+Escolha o comando correspondente à sua distribuição.
+
+## Ubuntu 22.04 — Humble
 
 ```bash
 source /opt/ros/humble/setup.bash
 ```
 
-### Configurando o Ambiente (Ubuntu 24.04)
-### Configure o ambiente obtendo o seguinte arquivo
+Para carregar automaticamente o ROS 2 em novos terminais:
+
+```bash
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+```
+
+---
+
+## Ubuntu 24.04 — Jazzy
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
 
-### Edite o arquivo .bashrc adicionando a linha acima ("source /opt/ros/humble/setup.bash") na última linha deste arquivo. 
+Para carregar automaticamente o ROS 2 em novos terminais:
 
-# ------------------------------------------------------------
-# Pacotes e ferramentas úteis para os próximos tutoriais
-# Ubuntu 22.04 (Jammy) + ROS 2 Humble
-# ------------------------------------------------------------
+```bash
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+```
 
-# 1) Ferramentas gerais de compilação e desenvolvimento
-# - build-essential: gcc/g++/make básicos
-# - python3-colcon-common-extensions: colcon com plugins comuns para build do ROS
-# - python3-rosdep: resolve dependências de pacotes ROS (muito usado em workspaces)
-#
-# 2) RMW (DDS) implementações
-# - FastDDS e CycloneDDS para você poder alternar middleware se necessário
+Depois, em ambos os casos:
+
+```bash
+source ~/.bashrc
+```
+
+---
+
+# 5. Pacotes e ferramentas úteis
+
+## 5.1 Ubuntu 22.04 + ROS 2 Humble
+
+### Ferramentas gerais de compilação
+
+- `build-essential`: GCC, G++, Make e ferramentas básicas.
+- `python3-colcon-common-extensions`: extensões do Colcon.
+- `python3-rosdep`: resolução automática de dependências.
+- Fast DDS e Cyclone DDS: implementações de middleware DDS.
+
 ```bash
 sudo apt install -y \
   build-essential \
@@ -97,30 +205,39 @@ sudo apt install -y \
   ros-humble-rmw-fastrtps-cpp \
   ros-humble-rmw-cyclonedds-cpp
 ```
-# Visualização e depuração
-# - RViz2: visualização
-# - tf2-tools: ferramentas de inspeção de TF (view_frames, tf2_echo, etc)
+
+---
+
+### RViz2 e TF2
+
 ```bash
 sudo apt install -y \
   ros-humble-rviz2 \
   ros-humble-tf2-tools
 ```
-# Turtlesim (aquecimento)
-# - Pacote clássico para testar tópicos, serviços e nós rapidamente
+
+---
+
+### Turtlesim
+
 ```bash
 sudo apt install -y \
   ros-humble-turtlesim
 ```
 
-# Teleop (controle por teclado)
-# - Envia geometry_msgs/Twist para controlar robôs/simulação
+---
+
+### Teleoperação pelo teclado
+
 ```bash
 sudo apt install -y \
   ros-humble-teleop-twist-keyboard
 ```
-# TurtleBot3 + Gazebo Classic (mais simples para Humble)
-# - Instala pacotes do TurtleBot3 e simulação pronta
-# - Gazebo Classic via gazebo_ros_pkgs (ainda disponível no Humble)
+
+---
+
+### TurtleBot3 + Gazebo Classic
+
 ```bash
 sudo apt install -y \
   ros-humble-turtlebot3 \
@@ -130,72 +247,435 @@ sudo apt install -y \
   ros-humble-gazebo-ros
 ```
 
-# ============================================================
-# Ubuntu 24.04 (Noble) + ROS 2 Jazzy
-# TurtleBot3 Simulation (Gazebo Sim / gz-harmonic) - por SOURCE
-# ============================================================
+---
 
-# 0) (Pré) Garanta que seu ROS 2 Jazzy já está instalado e carregado
+# 6. Ubuntu 24.04 + ROS 2 Jazzy + TurtleBot3
+
+No Ubuntu 24.04, utilizaremos ROS 2 Jazzy e Gazebo Sim.
+
+## 6.1 Carregar ROS 2 Jazzy
+
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
-# 1) Instalar Gazebo Sim (Harmonic) via repositório OSRF (Gazebo Sim)
-# (comandos do Quick Start do TurtleBot3 para Ubuntu 24.04 + Jazzy)
+
+---
+
+## 6.2 Instalar Gazebo Harmonic
+
+Atualize o sistema e instale as dependências:
+
 ```bash
 sudo apt-get update
-sudo apt-get install -y curl lsb-release gnupg
-sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+
+sudo apt-get install -y \
+  curl \
+  lsb-release \
+  gnupg
+```
+
+Adicione a chave do repositório OSRF:
+
+```bash
+sudo curl https://packages.osrfoundation.org/gazebo.gpg \
+  --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+```
+
+Adicione o repositório:
+
+```bash
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
   | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-sudo apt-get update
-sudo apt-get install -y gz-harmonic
-# Fonte: Quick Start (Jazzy) :contentReference[oaicite:2]{index=2}
 ```
-# 2) Criar workspace do TurtleBot3 e clonar os pacotes principais (branch jazzy)
+
+Atualize novamente:
+
+```bash
+sudo apt-get update
+```
+
+Instale o Gazebo Harmonic:
+
+```bash
+sudo apt-get install -y gz-harmonic
+```
+
+---
+
+## 6.3 Criar o workspace do TurtleBot3
+
 ```bash
 mkdir -p ~/turtlebot3_ws/src
 cd ~/turtlebot3_ws/src
+```
 
+Clone os pacotes principais:
+
+```bash
 git clone -b jazzy https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3.git
 ```
-# Fonte: Quick Start (Jazzy) :contentReference[oaicite:3]{index=3}
 
-# 3) Clonar as simulações (branch jazzy) e buildar tudo
+---
+
+## 6.4 Clonar os pacotes de simulação
+
+Ainda dentro de:
+
+```text
+~/turtlebot3_ws/src
+```
+
+execute:
+
 ```bash
 git clone -b jazzy https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
 ```
-# Fonte: Simulation (Jazzy) :contentReference[oaicite:4]{index=4}
+
+Depois:
+
 ```bash
 cd ~/turtlebot3_ws
 ```
-# 4) (Recomendado) instalar dependências do workspace via rosdep
-# (se você já usa rosdep no PC, pode pular o "init")
+
+---
+
+## 6.5 Instalar dependências com `rosdep`
+
+Caso o `rosdep` ainda não tenha sido inicializado:
+
 ```bash
 sudo rosdep init 2>/dev/null || true
+```
+
+Atualize:
+
+```bash
 rosdep update
+```
+
+Instale as dependências do workspace:
+
+```bash
 rosdep install --from-paths src -i -y
 ```
-# 5) Build
+
+---
+
+## 6.6 Compilar o workspace
+
+Instale o Colcon, caso ainda não esteja instalado:
+
 ```bash
 sudo apt install -y python3-colcon-common-extensions
+```
+
+Compile:
+
+```bash
+cd ~/turtlebot3_ws
+
 colcon build --symlink-install
 ```
-# 6) Source do workspace
+
+---
+
+## 6.7 Carregar o workspace
+
 ```bash
 source ~/turtlebot3_ws/install/setup.bash
 ```
-# 7) Rodar a simulação (3 mundos disponíveis)
-# Empty World:
+
+---
+
+## 6.8 Rodar a simulação do TurtleBot3
+
+Existem diferentes modelos e mundos disponíveis.
+
+### Opção 1 — Burger + Empty World
+
+Defina o modelo:
+
 ```bash
 export TURTLEBOT3_MODEL=burger
+```
+
+Execute:
+
+```bash
 ros2 launch turtlebot3_gazebo empty_world.launch.py
 ```
-# (alternativas)
-# export TURTLEBOT3_MODEL=waffle
-# ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-#
-# export TURTLEBOT3_MODEL=waffle_pi
-# ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
-# Fonte: Simulation (Jazzy) :contentReference[oaicite:5]{index=5}
+
+---
+
+### Opção 2 — Waffle + TurtleBot3 World
+
+Defina o modelo:
+
+```bash
+export TURTLEBOT3_MODEL=waffle
+```
+
+Execute:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+---
+
+### Opção 3 — Waffle Pi + TurtleBot3 House
+
+Defina o modelo:
+
+```bash
+export TURTLEBOT3_MODEL=waffle_pi
+```
+
+Execute:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
+```
+
+---
+
+# Parte prática da Aula 1
+
+Nesta seção estão os comandos e arquivos utilizados durante a parte prática da aula, seguindo a ordem apresentada nos slides.
+
+---
+
+# Prática 1 — Criando o primeiro pacote ROS 2
+
+## 1. Criar o workspace
+
+Crie a estrutura padrão do workspace:
+
+```bash
+mkdir -p ~/ros2_ws/src
+```
+
+Entre no workspace:
+
+```bash
+cd ~/ros2_ws
+```
+
+---
+
+## 2. Criar o pacote `my_lab01`
+
+Entre na pasta de código-fonte:
+
+```bash
+cd ~/ros2_ws/src
+```
+
+Crie o pacote:
+
+```bash
+ros2 pkg create \
+  --build-type ament_python \
+  my_lab01 \
+  --dependencies rclpy std_msgs sensor_msgs geometry_msgs \
+  --maintainer-name "Marcus Vinicius" \
+  --maintainer-email "marcus@example.com" \
+  --license Apache-2.0
+```
+
+Após esse comando, será criada uma estrutura semelhante a:
+
+```text
+ros2_ws/
+└── src/
+    └── my_lab01/
+        ├── my_lab01/
+        ├── package.xml
+        ├── resource/
+        ├── setup.cfg
+        └── setup.py
+```
+
+---
+
+## 3. Criar o Publisher
+
+Entre no diretório Python do pacote:
+
+```bash
+cd ~/ros2_ws/src/my_lab01/my_lab01
+```
+
+Crie o arquivo:
+
+```bash
+gedit simple_pub.py
+```
+
+O código utilizado na aula está disponível em:
+
+[`scripts/simple_pub.py`](scripts/simple_pub.py)
+
+Copie o conteúdo desse arquivo para:
+
+```text
+~/ros2_ws/src/my_lab01/my_lab01/simple_pub.py
+```
+
+---
+
+## 4. Criar o Subscriber
+
+Ainda no mesmo diretório:
+
+```bash
+cd ~/ros2_ws/src/my_lab01/my_lab01
+```
+
+Crie o arquivo:
+
+```bash
+gedit simple_sub.py
+```
+
+O código utilizado na aula está disponível em:
+
+[`scripts/simple_sub.py`](scripts/simple_sub.py)
+
+Copie o conteúdo para:
+
+```text
+~/ros2_ws/src/my_lab01/my_lab01/simple_sub.py
+```
+
+---
+
+## 5. Dar permissão de execução aos scripts
+
+```bash
+chmod +x ~/ros2_ws/src/my_lab01/my_lab01/simple_pub.py
+```
+
+```bash
+chmod +x ~/ros2_ws/src/my_lab01/my_lab01/simple_sub.py
+```
+
+---
+
+## 6. Atualizar o `setup.py`
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/my_lab01/setup.py
+```
+
+Utilize como referência o arquivo:
+
+[`scripts/setup.py`](scripts/setup.py)
+
+O `setup.py` é responsável, entre outras funções, por registrar os executáveis Python do pacote.
+
+---
+
+## 7. Criar o Launch File
+
+Entre no diretório principal do pacote:
+
+```bash
+cd ~/ros2_ws/src/my_lab01
+```
+
+Crie a pasta `launch`:
+
+```bash
+mkdir -p launch
+```
+
+Crie o arquivo:
+
+```bash
+gedit ~/ros2_ws/src/my_lab01/launch/demo.launch.py
+```
+
+Utilize como referência:
+
+[`scripts/launch/demo.launch.py`](scripts/launch/demo.launch.py)
+
+---
+
+## 8. Compilar o workspace
+
+Entre no workspace:
+
+```bash
+cd ~/ros2_ws
+```
+
+Compile:
+
+```bash
+colcon build --symlink-install
+```
+
+Carregue o ambiente compilado:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+---
+
+## 9. Testar Publisher e Subscriber
+
+Abra dois terminais.
+
+### Terminal 1 — Publisher
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 run my_lab01 simple_pub
+```
+
+---
+
+### Terminal 2 — Subscriber
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 run my_lab01 simple_sub
+```
+
+O Subscriber deverá começar a receber as mensagens enviadas pelo Publisher.
+
+---
+
+## 10. Executar Publisher e Subscriber através do Launch File
+
+Primeiro carregue o workspace:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Execute:
+
+```bash
+ros2 launch my_lab01 demo.launch.py
+```
+
+Os dois nós deverão ser inicializados pelo mesmo Launch File.
