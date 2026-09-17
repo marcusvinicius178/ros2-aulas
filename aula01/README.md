@@ -763,3 +763,106 @@ ros2 topic info /topic
 ```bash
 ros2 topic info /topic --verbose
 ```
+
+---
+
+# Prática 3 — TurtleBot3, Gazebo e LiDAR
+
+Nesta prática vamos executar o TurtleBot3 no simulador, controlar o robô pelo teclado e observar os dados publicados pelo sensor LiDAR.
+
+## 1. Terminal A — Executar o simulador
+
+Carregue o ROS 2:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Defina o modelo do TurtleBot3:
+
+```bash
+export TURTLEBOT3_MODEL=burger
+```
+
+Execute o mundo do TurtleBot3:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+Mantenha este terminal aberto.
+
+---
+
+## 2. Terminal B — Teleoperação
+
+Abra um novo terminal.
+
+Carregue o ROS 2:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Execute o controle pelo teclado:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true
+```
+
+Utilize o teclado para movimentar o TurtleBot3 no simulador.
+
+---
+
+## 3. Terminal C — Visualizar os dados do LiDAR
+
+Abra um terceiro terminal.
+
+Carregue o ROS 2:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Observe as mensagens publicadas pelo LiDAR:
+
+```bash
+ros2 topic echo /scan
+```
+
+Para confirmar o tipo da mensagem:
+
+```bash
+ros2 topic type /scan
+```
+
+Para verificar a frequência:
+
+```bash
+ros2 topic hz /scan
+```
+
+Para visualizar informações detalhadas do tópico:
+
+```bash
+ros2 topic info /scan --verbose
+```
+
+---
+
+## 4. Resultado esperado
+
+Ao final desta prática deverão existir três processos simultâneos:
+
+```text
+Terminal A
+└── Gazebo + TurtleBot3
+
+Terminal B
+└── teleop_twist_keyboard
+
+Terminal C
+└── ros2 topic echo /scan
+```
+
+Ao movimentar o robô pelo teclado, o TurtleBot3 deverá se mover no simulador enquanto o tópico `/scan` continua publicando os dados do LiDAR.
