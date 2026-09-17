@@ -1520,6 +1520,251 @@ Transient Local
 
 O marker deverá aparecer no RViz.
 
+
+# URDF — Step 1: criando o primeiro link
+
+Nesta etapa vamos criar a estrutura inicial do pacote `meu_robo_urdf_aula` e o primeiro modelo URDF.
+
+## 1. Criar a estrutura do pacote
+
+Entre na pasta `src` do workspace:
+
+```bash
+cd ~/ros2_ws/src
+```
+
+Crie a estrutura de diretórios:
+
+```bash
+mkdir -p meu_robo_urdf_aula/launch
+mkdir -p meu_robo_urdf_aula/urdf
+mkdir -p meu_robo_urdf_aula/rviz
+```
+
+Entre no pacote:
+
+```bash
+cd ~/ros2_ws/src/meu_robo_urdf_aula
+```
+
+Crie os arquivos:
+
+```bash
+touch package.xml
+touch CMakeLists.txt
+touch launch/display_step1.launch.py
+touch urdf/simple_robot_step1.urdf
+touch rviz/step1.rviz
+```
+
+---
+
+## 2. Preencher os arquivos do Step 1
+
+Os arquivos completos utilizados na aula estão disponíveis neste repositório.
+
+### `package.xml`
+
+[`package.xml`](exemplos/meu_robo_urdf_aula/package.xml)
+
+Abra o arquivo local:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/package.xml
+```
+
+Copie para ele o conteúdo disponível no link acima.
+
+---
+
+### `CMakeLists.txt`
+
+[`CMakeLists.txt`](exemplos/meu_robo_urdf_aula/CMakeLists.txt)
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/CMakeLists.txt
+```
+
+Copie para ele o conteúdo disponível no link acima.
+
+---
+
+### `simple_robot_step1.urdf`
+
+[`urdf/simple_robot_step1.urdf`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step1.urdf)
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/urdf/simple_robot_step1.urdf
+```
+
+Copie para ele o conteúdo disponível no link acima.
+
+---
+
+### `display_step1.launch.py`
+
+[`launch/display_step1.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step1.launch.py)
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/launch/display_step1.launch.py
+```
+
+Copie para ele o conteúdo disponível no link acima.
+
+---
+
+### `step1.rviz`
+
+[`rviz/step1.rviz`](exemplos/meu_robo_urdf_aula/rviz/step1.rviz)
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/rviz/step1.rviz
+```
+
+Copie para ele o conteúdo disponível no link acima.
+
+---
+
+## 3. Compilar o Step 1
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue o workspace:
+
+```bash
+source install/setup.bash
+```
+
+---
+
+## 4. Executar o Step 1
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step1.launch.py
+```
+
+O RViz deverá abrir mostrando o primeiro modelo do robô.
+
+---
+
+# URDF — Step 2: adicionando o primeiro braço e a primeira junta
+
+Nesta etapa vamos preservar o Step 1 e criar uma nova versão do modelo.
+
+Será adicionado o link `left_arm_link`, conectado ao torso através de uma junta do tipo `revolute`.
+
+## 1. Criar os arquivos do Step 2
+
+Entre no pacote:
+
+```bash
+cd ~/ros2_ws/src/meu_robo_urdf_aula
+```
+
+Crie o novo URDF a partir do Step 1:
+
+```bash
+cp urdf/simple_robot_step1.urdf urdf/simple_robot_step2.urdf
+```
+
+Crie o novo Launch File:
+
+```bash
+cp launch/display_step1.launch.py launch/display_step2.launch.py
+```
+
+Crie a configuração do RViz para este passo:
+
+```bash
+cp rviz/step1.rviz rviz/step2.rviz
+```
+
+---
+
+## 2. Atualizar o URDF do Step 2
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/urdf/simple_robot_step2.urdf
+```
+
+Substitua o conteúdo pelo arquivo:
+
+[`urdf/simple_robot_step2.urdf`](exemplos/meu_robo_urdf_aula/urdf/simple_robot_step2.urdf)
+
+---
+
+## 3. Atualizar o Launch File do Step 2
+
+Abra:
+
+```bash
+gedit ~/ros2_ws/src/meu_robo_urdf_aula/launch/display_step2.launch.py
+```
+
+Use como referência:
+
+[`launch/display_step2.launch.py`](exemplos/meu_robo_urdf_aula/launch/display_step2.launch.py)
+
+Esse Launch File deve carregar:
+
+```text
+simple_robot_step2.urdf
+```
+
+e a configuração:
+
+```text
+step2.rviz
+```
+
+---
+
+## 4. Configuração RViz do Step 2
+
+O arquivo utilizado nesta etapa está disponível em:
+
+[`rviz/step2.rviz`](exemplos/meu_robo_urdf_aula/rviz/step2.rviz)
+
+---
+
+## 5. Recompilar o pacote
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select meu_robo_urdf_aula
+```
+
+Carregue novamente o workspace:
+
+```bash
+source install/setup.bash
+```
+
+---
+
+## 6. Executar o Step 2
+
+```bash
+ros2 launch meu_robo_urdf_aula display_step2.launch.py
+```
+
+O modelo deverá apresentar o torso e o primeiro braço conectado através de uma junta do tipo `revolute`.
+
+---
+
 ---
 
 # URDF — Step 3: adicionando o braço direito
