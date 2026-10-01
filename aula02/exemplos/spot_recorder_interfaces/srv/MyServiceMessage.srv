@@ -1,0 +1,5 @@
+# Uma etiqueta grava a pose; a etiqueta reservada end salva os arquivos.
+string label
+---
+bool success
+string message
