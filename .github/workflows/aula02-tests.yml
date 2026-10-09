@@ -1,0 +1,27 @@
+name: Aula 02 - testes Python e scripts
+
+on:
+  push:
+    branches:
+      - aula02-jazzy-2026-10-01
+  pull_request:
+    paths:
+      - 'aula02/**'
+      - '.github/workflows/aula02-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  aula02-static-tests:
+    name: Python, YAML, XML e scripts Bash (sem ROS)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Obter arquivos do repositorio
+        uses: actions/checkout@v4
+      - name: Instalar biblioteca YAML dos testes
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-yaml
+      - name: Executar testes da Aula 02
+        run: python3 -m unittest discover -s aula02/tests -v

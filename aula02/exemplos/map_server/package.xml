@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>map_server</name>
+  <version>0.1.0</version>
+  <description>Publicacao de mapa e demonstracao de lifecycle</description>
+  <maintainer email="43826438+marcusvinicius178@users.noreply.github.com">Marcus Vinicius Leal de Carvalho</maintainer>
+  <license>UNLICENSED</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

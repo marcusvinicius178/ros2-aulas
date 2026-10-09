@@ -1,0 +1,6 @@
+# Requisicao: etiqueta usada para identificar a pose do robo.
+string label
+---
+# Resposta: grafia preservada do exercicio pratico da Aula 02.
+bool navigation_successfull
+string message
