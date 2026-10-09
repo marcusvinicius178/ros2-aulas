@@ -1,5 +1,6 @@
-# Uma etiqueta grava a pose; a etiqueta reservada end salva os arquivos.
+# Requisicao: etiqueta usada para identificar a pose do robo.
 string label
 ---
-bool success
+# Resposta: grafia preservada do exercicio pratico da Aula 02.
+bool navigation_successfull
 string message

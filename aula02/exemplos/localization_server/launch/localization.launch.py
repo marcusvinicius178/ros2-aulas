@@ -13,7 +13,11 @@ def generate_launch_description():
         get_package_share_directory('localization_server'), 'config', 'amcl_config.yaml')
     sim = ParameterValue(LaunchConfiguration('use_sim_time'), value_type=bool)
     return LaunchDescription([
-        DeclareLaunchArgument('map', description='Caminho absoluto do YAML do mapa salvo'),
+        DeclareLaunchArgument(
+            'map',
+            default_value=os.path.expanduser('~/ros2_ws/src/map_server/maps/turtlebot_area.yaml'),
+            description='Caminho absoluto do YAML do mapa salvo'
+        ),
         DeclareLaunchArgument('params_file', default_value=default_config),
         DeclareLaunchArgument('use_sim_time', default_value='true'),
         Node(package='nav2_map_server', executable='map_server', name='map_server',
