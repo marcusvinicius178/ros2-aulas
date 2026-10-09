@@ -5,6 +5,7 @@ from pathlib import Path
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from spot_recorder_interfaces.srv import MyServiceMessage
 
@@ -21,11 +22,18 @@ class SpotRecorderNode(Node):
             str(self.get_parameter('output_file').value)
         ).expanduser()
 
+        # O AMCL Jazzy publica /amcl_pose em RELIABLE + TRANSIENT_LOCAL.
+        # Assim, o gravador recebe a ultima pose mesmo se abrir depois.
+        pose_qos = QoSProfile(
+            depth=1,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+        )
         self.pose_sub = self.create_subscription(
             PoseWithCovarianceStamped,
             '/amcl_pose',
             self.amcl_callback,
-            10
+            pose_qos
         )
         self.service = self.create_service(
             MyServiceMessage,

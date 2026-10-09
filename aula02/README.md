@@ -371,7 +371,7 @@ Se o RViz reclamar de QoS incompatível, confira as ofertas do tópico com `ros2
 
 ## 9. Gravar posições para a próxima aula — slides 37–40 (versão ensaiada)
 
-Mantenha Gazebo, AMCL, RViz e teleop ativos, mas pare o robô antes de registrar cada posição. O gravador principal **assina /amcl_pose** e só pode capturar um ponto depois de receber a primeira estimativa do AMCL.
+Mantenha Gazebo, AMCL, RViz e teleop ativos, mas pare o robô antes de registrar cada posição. O gravador principal **assina /amcl_pose** e só pode capturar um ponto depois de receber a primeira estimativa do AMCL. Como o AMCL Jazzy oferece `/amcl_pose` com **RELIABLE + TRANSIENT_LOCAL**, o subscriber do gravador usa o mesmo QoS para receber também a última pose publicada quando o nó é iniciado mais tarde. Isso não substitui a necessidade de localização válida e atualizada.
 
 ### Terminal E — gravador didático
 
@@ -409,6 +409,8 @@ string message
 ```
 
 `left` e `center` registram poses em memória; `end` escreve as poses com `x,y,z,qx,qy,qz,qw` em `spots.txt`. Receber `navigation_successfull: false` e `Nenhuma pose recebida ainda de /amcl_pose` significa que o AMCL ainda não forneceu posição. O gravador didático sobrescreve o TXT na próxima chamada `end`: faça backup antes de uma nova sessão se quiser preservá-lo.
+
+**Se o gravador ainda disser "Nenhuma pose recebida":** confira se está no mesmo `ROS_DOMAIN_ID` do AMCL; execute `ros2 topic info -v /amcl_pose` e teste `ros2 topic echo /amcl_pose --once --qos-durability transient_local --qos-reliability reliable`. Se a pose estiver disponível, reinicie o gravador atualizado. Com o robô parado, também é possível solicitar uma nova atualização: `ros2 service call /request_nomotion_update std_srvs/srv/Empty "{}"`. Se nada for publicado, verifique `/scan`, `/clock` e `odom -> base_footprint -> base_scan`.
 
 **Atenção:** a implementação de 01/10 usava `bool success` e gravação por TF. Esse contrato era incompatível com a resposta `navigation_successfull` efetivamente testada. Recompile `spot_recorder_interfaces` e `localization_server` e carregue o overlay atualizado.
 

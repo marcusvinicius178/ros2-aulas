@@ -95,6 +95,8 @@ class CourseTests(unittest.TestCase):
         source = (ROOT / 'exemplos/localization_server/localization_server/spots_to_file.py').read_text()
         self.assertIn('PoseWithCovarianceStamped', source)
         self.assertIn('response.navigation_successfull', source)
+        self.assertIn('QoSDurabilityPolicy.TRANSIENT_LOCAL', source)
+        self.assertIn('QoSReliabilityPolicy.RELIABLE', source)
         self.assertNotIn('response.success', source)
         self.assertIn("self.declare_parameter('output_file', 'spots.txt')", source)
 
