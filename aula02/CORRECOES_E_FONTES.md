@@ -79,3 +79,19 @@ Branches e páginas oficiais podem mudar. O script de diagnóstico registra vers
 Executados no ambiente de preparação, sem ROS: 13 testes unittest de sintaxe/estrutura, seleção de argumentos do teleop com CLI simulado, contrato, parâmetros, quaternions e persistência. Python/Bash/XML/YAML verificados. Não foi executado parser Lua com Cartographer, geração rosidl, build colcon ou runtime ROS/Gazebo/RViz. As dependências binárias precisam ser instaladas e verificadas no Ubuntu 24.04 do laptop.
 
 Não foram adicionados workflows que instalem ROS ou executem simulação no GitHub Actions. A branch/PR de revisão não equivale a uma aprovação para demonstração ao vivo. O checklist de aceitação está no fim do README.
+
+
+## Revisão pós-laboratório — 08/10/2026
+
+A revisão inicial de 01/10/2026 foi preparada sem execução real de ROS no laptop. Os logs fornecidos depois pelo professor demonstraram: Cartographer publicando `/map`, map_server e AMCL ativos, localização com 2D Pose Estimate e serviço `/record_spot` funcionando para `left`, `center` e `end` (`navigation_successfull=True`). Isso é **evidência da prática no notebook**, não um teste end-to-end da branch do GitHub em outra máquina.
+
+Correções incorporadas:
+- Serviço `MyServiceMessage.srv`: resposta `navigation_successfull` (grafia preservada do código usado), em vez de `success`.
+- Gravador principal usa subscriber de `/amcl_pose` e grava `spots.txt` somente após `end`; launch com caminho explícito `~/ros2_aula02_dados/spots.txt`.
+- Gravador avançado anterior por TF, com YAML/TXT e validação temporal, preservado com outros nomes, evitando conflito entre contratos.
+- `localization.launch.py` aceita valor padrão do argumento `map`; o comando com `map:=...` prevalece.
+- `setup.py` com entradas `data_files` corretamente estruturadas; `srv/*.srv` é só cópia opcional de recurso e `config/*.yaml` evita tentar copiar pastas.
+- Tempo de espera do `map_saver_cli` aumentado a 60 s; o Cartographer da sessão ofereceu durabilidade TRANSIENT_LOCAL.
+- RViz: `/particle_cloud` no Jazzy é `nav2_msgs/msg/ParticleCloud` e requer o display próprio do Nav2; `/amcl_pose` é `PoseWithCovarianceStamped`, não PoseArray.
+
+Cuidado com interfaces antigas geradas em `install/`: podem continuar expondo `success`. Recompile as interfaces e confira o overlay antes da aula. A nova versão precisa ser testada com ROS 2 Jazzy real; os testes de sintaxe e estrutura não bastam.

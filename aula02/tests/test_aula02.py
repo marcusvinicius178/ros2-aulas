@@ -89,7 +89,28 @@ class CourseTests(unittest.TestCase):
         text = (ROOT / 'exemplos/spot_recorder_interfaces/srv/MyServiceMessage.srv').read_text()
         lines = [line.strip() for line in text.splitlines()
                  if line.strip() and not line.lstrip().startswith('#')]
-        self.assertEqual(lines, ['string label', '---', 'bool success', 'string message'])
+        self.assertEqual(lines, ['string label', '---', 'bool navigation_successfull', 'string message'])
+
+    def test_gravador_principal_corresponde_ao_srv(self):
+        source = (ROOT / 'exemplos/localization_server/localization_server/spots_to_file.py').read_text()
+        self.assertIn('PoseWithCovarianceStamped', source)
+        self.assertIn('response.navigation_successfull', source)
+        self.assertNotIn('response.success', source)
+        self.assertIn("self.declare_parameter('output_file', 'spots.txt')", source)
+
+    def test_launch_mapa_e_setup_srv(self):
+        launch = (ROOT / 'exemplos/localization_server/launch/localization.launch.py').read_text()
+        setup = (ROOT / 'exemplos/localization_server/setup.py').read_text()
+        self.assertIn("default_value=os.path.expanduser(", launch)
+        self.assertIn("glob(os.path.join('srv', '*.srv'))", setup)
+        self.assertIn("glob(os.path.join('config', '*.yaml'))", setup)
+        self.assertNotIn(chr(0x200B), setup)
+
+    def test_variante_tf_tem_contrato_compativel(self):
+        source = (ROOT / 'exemplos/localization_server/localization_server/spots_to_file_tf.py').read_text()
+        self.assertIn('response.navigation_successfull', source)
+        self.assertNotIn('response.success', source)
+        self.assertTrue((ROOT / 'exemplos/localization_server/launch/spot_recorder_tf.launch.py').exists())
 
     def test_quaternion_roundtrip(self):
         for angle in (-math.pi, -1.2, 0.0, 0.328028, math.pi / 2, math.pi):

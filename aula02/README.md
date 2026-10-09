@@ -2,9 +2,9 @@
 
 **Ambiente-alvo: Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic.**
 
-Roteiro de execução baseado nos 41 slides de `ROS2 Aula2.pptx`. Mantém a sequência da aula: demonstração Nav2, Cartographer, mapa salvo, map server/lifecycle, AMCL e gravação de posições. Os arquivos completos estão neste diretório; não é necessário copiar código do Pastebin.
+Roteiro de execução baseado nos 41 slides iniciais de `ROS2 Aula2.pptx`, ampliados com exercícios práticos de AMCL, serviços e gravação de posições nos slides seguintes. Mantém a sequência da aula: demonstração Nav2, Cartographer, mapa salvo, map server/lifecycle, AMCL e gravação de posições. Os arquivos completos estão neste diretório; não é necessário copiar código do Pastebin.
 
-> **Estado de validação:** testes locais de sintaxe, estrutura e funções auxiliares executados. A compilação ROS, o Gazebo, o RViz e a demonstração completa ainda precisam ser ensaiados no laptop. Não considerar a aula homologada apenas porque os testes sem ROS passaram.
+> **Estado de validação:** o professor executou Cartographer, Map Server, AMCL, Gazebo, RViz e o serviço de posições em um notebook Jazzy, com os resultados descritos em [correções e fontes](CORRECOES_E_FONTES.md). Esta revisão do repositório alinha os exemplos com esse ensaio; ainda é necessário testar os arquivos revisados e suas dependências em outro computador. Não considerar a aula homologada apenas porque os testes de sintaxe passam.
 >
 > **Proveniência:** os links do Pastebin dos slides não puderam ser lidos nesta revisão. Os arquivos dependentes desses links são implementações novas, equivalentes ao exercício, não cópias recuperadas. O contrato de resposta do serviço e o formato dos arquivos de posições estão documentados aqui. Veja [correções e fontes](CORRECOES_E_FONTES.md).
 
@@ -214,15 +214,14 @@ source "$HOME/ros2-aulas-aula02/aula02/scripts/ambiente.bash"
 mkdir -p "$AULA02_DATA/mapas"
 ros2 run nav2_map_server map_saver_cli \
   -f "$AULA02_DATA/mapas/turtlebot_area" \
-  --ros-args -p use_sim_time:=true -p save_map_timeout:=15.0 \
-  -p map_subscribe_transient_local:=false
+  --ros-args -p use_sim_time:=true -p save_map_timeout:=60.0
 ls -lh "$AULA02_DATA/mapas/turtlebot_area."*
 cat "$AULA02_DATA/mapas/turtlebot_area.yaml"
 ```
 
 Deve haver `turtlebot_area.yaml` e a imagem indicada na chave `image` do YAML, normalmente `turtlebot_area.pgm`. O nome é consistente: não procurar `area_do_turtlebot`.
 
-Para Cartographer, o assinante do salvamento usa durabilidade volátil explicitamente: ele pode receber o próximo mapa periódico tanto de um publicador volátil quanto de um transient-local. Aguarde a mensagem de sucesso antes de encerrar o SLAM.
+O Cartographer ensaiado publicou /map com QoS RELIABLE e TRANSIENT_LOCAL. O map_saver_cli pode solicitar esse perfil; o timeout foi elevado para 60 s porque o simulador estava lento. Confira com `ros2 topic info -v /map`. Se outro publicador oferecer apenas durabilidade VOLATILE, adicione `-p map_subscribe_transient_local:=false`. Aguarde a mensagem de sucesso antes de encerrar o SLAM.
 
 **Atenção:** repetir o salvamento com o mesmo prefixo pode sobrescrever o mapa anterior. Para preservar um ensaio, use outro prefixo e passe o respectivo YAML nas etapas seguintes. O mapa salvo contém ocupação, não é um checkpoint `.pbstream` para retomar Cartographer.
 
@@ -348,43 +347,81 @@ AMCL passará a iniciar na pose configurada. **Isso muda a hipótese do localiza
 
 Para voltar ao exercício interativo, devolva `set_initial_pose` a `false` e repita build/relaunch.
 
-## 9. Gravar posições para a próxima aula — slides 37–40
+### 8.3 Localização global, partículas e covariância (experimento 08/10/2026)
 
-Mantenha A (simulação), B (localização), C (RViz) e D (teleop) ativos. Pare o robô antes de cada captura.
+Com o AMCL e o mapa ativos, **2D Pose Estimate** envia uma hipótese local no tópico `/initialpose` (tipo `geometry_msgs/msg/PoseWithCovarianceStamped`). Outra alternativa é reinicializar as partículas pelo espaço livre do mapa, usando um serviço ROS 2:
 
-### Terminal E — gravador
+```bash
+ros2 service type /reinitialize_global_localization
+ros2 interface show std_srvs/srv/Empty
+ros2 service call /reinitialize_global_localization std_srvs/srv/Empty "{}"
+```
+
+O serviço usa request e response vazias. Uma resposta recebida **não garante** que a localização já tenha convergido. Movimente cuidadosamente o robô e acompanhe as observações do LiDAR.
+
+Para visualizar as hipóteses, adicione no RViz o display **nav2_rviz_plugins/ParticleCloud** para `/particle_cloud` (tipo `nav2_msgs/msg/ParticleCloud` no Jazzy). `/amcl_pose` **não é PoseArray**: use um display `PoseWithCovariance`, pois o tipo é `geometry_msgs/msg/PoseWithCovarianceStamped`. O círculo/elipse roxo expressa incerteza em posição; a região angular amarela expressa incerteza em yaw.
+
+```bash
+ros2 topic list -t | grep -E '/particle_cloud|/amcl_pose'
+ros2 topic info -v /particle_cloud
+ros2 topic echo /amcl_pose --once --field pose.covariance
+```
+
+Se o RViz reclamar de QoS incompatível, confira as ofertas do tópico com `ros2 topic info -v`. Para o erro de locale `locale::facet::_S_create_c_locale`, desative Conda e teste `LC_ALL=C.UTF-8 LANG=C.UTF-8 rviz2 --ros-args -p use_sim_time:=true`. Não use simultaneamente Cartographer e AMCL como produtores de `map -> odom`.
+
+## 9. Gravar posições para a próxima aula — slides 37–40 (versão ensaiada)
+
+Mantenha Gazebo, AMCL, RViz e teleop ativos, mas pare o robô antes de registrar cada posição. O gravador principal **assina /amcl_pose** e só pode capturar um ponto depois de receber a primeira estimativa do AMCL.
+
+### Terminal E — gravador didático
 
 ```bash
 source "$HOME/ros2-aulas-aula02/aula02/scripts/ambiente.bash"
 ros2 launch localization_server spot_recorder.launch.py use_sim_time:=true
 ```
 
-O log mostra o caminho de saída, por exemplo `~/ros2_aula02_dados/spots_DATA_HORA.yaml`. Cada sessão usa um nome novo. Espere alguns segundos para o listener receber TF.
+Esse launch passa o caminho absoluto `$HOME/ros2_aula02_dados/spots.txt` ao nó. A resposta e os logs mostram o nome do arquivo. Se executado diretamente com `ros2 run localization_server spots_to_file`, o padrão `spots.txt` será gravado no **diretório de trabalho do processo servidor**, não no terminal cliente.
 
 ### Terminal F — serviço
 
 ```bash
 source "$HOME/ros2-aulas-aula02/aula02/scripts/ambiente.bash"
 ros2 interface show spot_recorder_interfaces/srv/MyServiceMessage
-ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage \
-  "{label: 'center'}"
+ros2 topic echo /amcl_pose --once
+ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage "{label: 'left'}"
 ```
 
-No Terminal D, mova até outro local e pare com `k`. No F:
+Após mover o robô para um segundo ponto, execute:
 
 ```bash
-ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage \
-  "{label: 'left'}"
-ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage \
-  "{label: 'end'}"
-ls -lt "$AULA02_DATA"/spots_*
+ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage "{label: 'center'}"
+ros2 service call /record_spot spot_recorder_interfaces/srv/MyServiceMessage "{label: 'end'}"
+cat "$HOME/ros2_aula02_dados/spots.txt"
 ```
 
-Cada chamada deve responder `success: true`. A etiqueta é só um nome: `center`/`left` não mandam o robô se mover. `end` salva um **YAML estruturado** e um **TXT legível**, cujos caminhos aparecem na resposta. Antes de `end`, as posições estão apenas em memória. Não feche o gravador sem salvar.
+**Contrato da prática executada no notebook do professor:**
 
-O novo serviço mantém a requisição `string label` mostrada nos slides. Sua resposta nesta implementação é `bool success` + `string message`; não foi possível confirmar a resposta do Pastebin original. Os arquivos de saída também são um contrato novo e explícito, não uma garantia de compatibilidade com um leitor antigo da próxima aula.
+```text
+string label
+---
+bool navigation_successfull
+string message
+```
 
-O YAML contém `schema_version`, `frame_id`, `base_frame_id` e um dicionário `spots`, com posição, quaternion, yaw e timestamp por etiqueta. O TXT contém colunas `label x y yaw qx qy qz qw`. O gravador lê a TF `map -> base_footprint`, rejeita TF velha, etiquetas duplicadas e sobrescrita de arquivo existente. Ele não faz navegação nem verifica sozinho a convergência do AMCL.
+`left` e `center` registram poses em memória; `end` escreve as poses com `x,y,z,qx,qy,qz,qw` em `spots.txt`. Receber `navigation_successfull: false` e `Nenhuma pose recebida ainda de /amcl_pose` significa que o AMCL ainda não forneceu posição. O gravador didático sobrescreve o TXT na próxima chamada `end`: faça backup antes de uma nova sessão se quiser preservá-lo.
+
+**Atenção:** a implementação de 01/10 usava `bool success` e gravação por TF. Esse contrato era incompatível com a resposta `navigation_successfull` efetivamente testada. Recompile `spot_recorder_interfaces` e `localization_server` e carregue o overlay atualizado.
+
+### Variante avançada opcional — TF + YAML/TXT
+
+A versão anterior, com validação de TF, carimbos de tempo e gravação sem sobrescrever, permanece disponível como `spots_to_file_tf.py` + `spot_recorder_tf.launch.py`, agora com o mesmo campo `navigation_successfull`:
+
+```bash
+ros2 launch localization_server spot_recorder_tf.launch.py use_sim_time:=true
+```
+
+Ela gera `~/ros2_aula02_dados/spots_DATA_HORA.yaml` e um TXT correspondente. **Não execute os dois gravadores juntos**, pois ambos oferecem o serviço `/record_spot`. Essa variante não foi testada no ensaio de hoje.
+
 
 ## 10. Arquivos completos e onde editar
 
@@ -396,12 +433,14 @@ O YAML contém `schema_version`, `frame_id`, `base_frame_id` e um dicionário `s
 | [localization.launch.py](exemplos/localization_server/launch/localization.launch.py) | Mapa + AMCL + lifecycle |
 | [amcl_config.yaml](exemplos/localization_server/config/amcl_config.yaml) | Parâmetros e pose inicial |
 | [MyServiceMessage.srv](exemplos/spot_recorder_interfaces/srv/MyServiceMessage.srv) | Contrato do serviço |
-| [spots_to_file.py](exemplos/localization_server/localization_server/spots_to_file.py) | Nó gravador |
-| [pose_utils.py](exemplos/localization_server/localization_server/pose_utils.py) | Quaternions e salvamento YAML/TXT |
-| [spot_recorder.launch.py](exemplos/localization_server/launch/spot_recorder.launch.py) | Inicia o gravador |
+| [spots_to_file.py](exemplos/localization_server/localization_server/spots_to_file.py) | Nó ensaiado que assina /amcl_pose e salva spots.txt |
+| [pose_utils.py](exemplos/localization_server/localization_server/pose_utils.py) | Quaternions e saída YAML/TXT da variante avançada |
+| [spot_recorder.launch.py](exemplos/localization_server/launch/spot_recorder.launch.py) | Inicia o gravador didático |
+| [spots_to_file_tf.py](exemplos/localization_server/localization_server/spots_to_file_tf.py) | Variante avançada por TF |
+| [spot_recorder_tf.launch.py](exemplos/localization_server/launch/spot_recorder_tf.launch.py) | Launch da variante avançada |
 | [set_initial_pose.py](exemplos/localization_server/localization_server/set_initial_pose.py) | Publicação da pose pela linha de comando |
 
-Os `package.xml`, `setup.py`, `setup.cfg`, `__init__.py`, marcadores `resource/` e `CMakeLists.txt` também estão completos em [exemplos](exemplos). Não acrescente `srv/` aos `data_files` do pacote Python: a interface é gerada pelo pacote `ament_cmake` próprio.
+Os `package.xml`, `setup.py`, `setup.cfg`, `__init__.py`, marcadores `resource/` e `CMakeLists.txt` também estão completos em [exemplos](exemplos). O `setup.py` inclui a entrada didática `srv/*.srv` em `data_files` para mostrar como copiar recursos (mesmo se a pasta estiver vazia), **não para gerar a interface**. A geração real ocorre no pacote `spot_recorder_interfaces` com `rosidl_generate_interfaces()` e `ament_cmake`. Em `data_files`, cada entrada deve ser uma dupla `(destino, lista_de_arquivos)`; evite aninhar tuplas e caracteres invisíveis U+200B.
 
 ## 11. Problemas comuns
 
@@ -417,14 +456,14 @@ Os `package.xml`, `setup.py`, `setup.cfg`, `__init__.py`, marcadores `resource/`
 | Nós `unconfigured` | Leia o erro anterior de YAML/TF/mapa no launch; consulte o lifecycle manager correspondente à etapa |
 | Mapa ainda visível após pausa | É cache do RViz; consulte o estado lifecycle para verificar a transição |
 | Configuração parece não atualizar | Edite a fonte do repositório, recompile e relance; confira qual pacote está sendo usado |
-| Gravador responde `success: false` | Leia `message`; espere TF, confira AMCL/clock e use etiqueta nova |
+| Gravador responde `navigation_successfull: false` | Leia `message`: primeiro espere o AMCL publicar /amcl_pose; na variante avançada confira também TF/clock |
 | Janela gráfica falha | Guarde o log. Em outro terminal, tente `export QT_QPA_PLATFORM=xcb` antes de relançar a janela; isso é diagnóstico, não cura geral |
 
 Não apague `~/ros2_ws`, não edite os pacotes em `/opt/ros/jazzy` e não atualize kernel/driver na véspera da aula para corrigir um erro de launch.
 
 ## 12. Checklist do ensaio no laptop
 
-Antes de dar a aula, confirme: build dos quatro pacotes; demonstração Nav2 abre; somente uma sessão Gazebo ativa; clock/scan/odom chegando; robô responde e para no teleop; mapa salvo com imagem e YAML; pause/resume observado no lifecycle; AMCL ativo e laser alinhado; duas posições e `end` com `success: true`; YAML/TXT conferidos. Guarde o mapa e a saída do diagnóstico.
+Antes de dar a aula, confirme: build dos quatro pacotes; demonstração Nav2 abre; somente uma sessão Gazebo ativa; clock/scan/odom chegando; robô responde e para no teleop; mapa salvo com imagem e YAML; pause/resume observado no lifecycle; AMCL ativo e laser alinhado; duas posições e `end` com `navigation_successfull: true`; spots.txt conferido. Guarde o mapa e a saída do diagnóstico.
 
 Testes locais que não exigem ROS (exigem `python3-yaml`):
 
@@ -434,3 +473,22 @@ python3 -m unittest discover -s aula02/tests -v
 ```
 
 Eles verificam sintaxe Python/Bash, XML de pacotes, configuração AMCL, contrato do serviço, conversão de quaternion, etiquetas e escrita sem sobrescrita. **Não substituem colcon build nem o ensaio gráfico.**
+
+## 13. Atualização pós-laboratório e transporte ao notebook do IPT
+
+No ensaio do professor em 08/10/2026, Cartographer publicou `/map` como `OccupancyGrid` RELIABLE/TRANSIENT_LOCAL, o Map Server carregou `turtlebot_area.yaml`, AMCL localizou após `2D Pose Estimate`, e o serviço de gravação respondeu `navigation_successfull=True` para `left`, `center` e `end`. A versão **revisada no GitHub** ainda requer compilação e teste na máquina de destino.
+
+O launch de localização aceita agora `map` opcional, com default `~/ros2_ws/src/map_server/maps/turtlebot_area.yaml` para quem acompanha a estrutura dos slides. Nesta branch que usa `~/ros2_aula02_ws`, continue indicando explicitamente o caminho do mapa salvo em `$AULA02_DATA`.
+
+O `turtlebot_area.yaml` e o `.pgm` foram gerados no notebook, portanto **não acompanham os códigos no GitHub**. Transfira os dois arquivos para o IPT, confira que o YAML referencia a imagem correta e ajuste `map:=/caminho/absoluto/mapa.yaml` quando necessário. Não transfira `build/`, `install/` ou `log/`; recompile as fontes.
+
+Depois de atualizar essa branch no notebook:
+
+```bash
+cd "$AULA02_WS"
+colcon build --base-paths src --packages-up-to localization_server --symlink-install
+source "$AULA02_DIR/scripts/ambiente.bash"
+ros2 interface show spot_recorder_interfaces/srv/MyServiceMessage
+```
+
+O serviço instalado deve mostrar `bool navigation_successfull`. Se mostrar `bool success`, confira `ros2 pkg prefix spot_recorder_interfaces`: pode haver um overlay antigo no terminal.
